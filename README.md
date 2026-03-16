@@ -13,8 +13,18 @@
 
 ## 🎥 Demo
 
+[![MediScan AI Demo](https://img.youtube.com/vi/zXqR175jmhM/0.jpg)](https://www.youtube.com/watch?v=zXqR175jmhM)
+
 > Upload a blood test, X-ray report, or prescription → Nova reads it → Results appear in your language
 
+**[▶ Watch Full Demo on YouTube](https://www.youtube.com/watch?v=zXqR175jmhM)**
+```
+
+**Step 6 — Replace `YOUR_VIDEO_ID`** with your actual YouTube video ID.
+
+For example if your YouTube link is:
+```
+https://www.youtube.com/watch?v=zXqR175jmhM
 ---
 
 ## ✨ Features
