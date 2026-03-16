@@ -20,11 +20,6 @@
 **[▶ Watch Full Demo on YouTube](https://www.youtube.com/watch?v=zXqR175jmhM)**
 ```
 
-**Step 6 — Replace `YOUR_VIDEO_ID`** with your actual YouTube video ID.
-
-For example if your YouTube link is:
-```
-https://www.youtube.com/watch?v=zXqR175jmhM
 ---
 
 ## ✨ Features
