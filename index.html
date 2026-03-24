@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MediScan AI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f5f3ef;--card:#fff;--ink:#1a1a18;--ink2:#5a5a54;--ink3:#9a9a92;--accent:#2d6a4f;--accent2:#40916c;--warn:#e07a28;--danger:#c0392b;--normal:#2d6a4f;--border:#e8e4dc;--shadow:0 2px 20px rgba(0,0,0,0.07);--r:16px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:0 0 80px}
+header{background:var(--accent);color:#fff;padding:20px 32px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.logo-icon{width:44px;height:44px;background:rgba(255,255,255,0.18);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.header-titles h1{font-family:'DM Serif Display',serif;font-size:24px;font-weight:400}
+.header-titles p{font-size:12px;opacity:.75;margin-top:1px;font-weight:300}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.badge{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);padding:5px 12px;border-radius:100px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+
+/* LANGUAGE DROPDOWN */
+.lang-wrapper{position:relative}
+.lang-trigger{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:8px 16px;border-radius:100px;font-size:13px;font-weight:500;cursor:pointer;transition:background .2s;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.lang-trigger:hover{background:rgba(255,255,255,0.25)}
+.lang-trigger svg{width:16px;height:16px;opacity:.8;transition:transform .2s}
+.lang-trigger.open svg{transform:rotate(180deg)}
+.lang-globe{font-size:16px}
+.lang-dropdown{display:none;position:absolute;top:calc(100% + 10px);right:0;background:var(--card);border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.15);border:1px solid var(--border);width:340px;z-index:1000;overflow:hidden}
+.lang-dropdown.open{display:block;animation:dropIn .18s ease}
+@keyframes dropIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.lang-dropdown-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.lang-dropdown-header span{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3)}
+.lang-search{padding:10px 14px;border-bottom:1px solid var(--border)}
+.lang-search input{width:100%;border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--bg);outline:none}
+.lang-search input:focus{border-color:var(--accent2)}
+.lang-list{max-height:280px;overflow-y:auto;padding:8px}
+.lang-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background .15s}
+.lang-item:hover{background:var(--bg)}
+.lang-item.active{background:#edf7f1}
+.lang-item-left{display:flex;align-items:center;gap:10px}
+.lang-native{font-size:14px;font-weight:500;color:var(--ink)}
+.lang-english{font-size:12px;color:var(--ink3)}
+.lang-check{width:16px;height:16px;color:var(--accent);display:none}
+.lang-item.active .lang-check{display:block}
+
+main{max-width:880px;margin:0 auto;padding:36px 24px 0}
+.upload-area{background:var(--card);border:2px dashed var(--border);border-radius:var(--r);padding:52px 40px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+.upload-area:hover,.upload-area.drag-over{border-color:var(--accent2);background:#f0faf4}
+.upload-icon{width:64px;height:64px;background:#edf7f1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px}
+.upload-area h2{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;margin-bottom:8px}
+.upload-area p{color:var(--ink2);font-size:14px;line-height:1.6}
+.file-types{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.file-type{background:var(--bg);border:1px solid var(--border);padding:4px 12px;border-radius:100px;font-size:11px;font-weight:600;color:var(--ink2);text-transform:uppercase}
+#file-input{display:none}
+.btn{margin-top:14px;background:var(--accent);color:#fff;border:none;padding:12px 28px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background .2s,transform .1s;display:inline-block}
+.btn:hover{background:var(--accent2)}.btn:active{transform:scale(.98)}
+.btn-dark{background:#1a1a18}.btn-dark:hover{background:#333}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--ink2)}.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.file-chosen{margin-top:12px;font-size:13px;color:var(--accent2);font-weight:500;display:none}
+.loading{display:none;background:var(--card);border-radius:var(--r);padding:48px 40px;text-align:center;box-shadow:var(--shadow);margin-top:24px}
+.loading h3{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400;margin-bottom:32px}
+.load-steps{display:flex;flex-direction:column;gap:10px;max-width:360px;margin:0 auto}
+.load-step{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:10px;background:var(--bg);font-size:14px;color:var(--ink2);transition:background .4s,color .4s}
+.load-step.active{background:#edf7f1;color:var(--accent)}.load-step.done{background:#edf7f1;color:var(--accent)}
+.step-dot{width:10px;height:10px;min-width:10px;border-radius:50%;background:var(--border);transition:background .4s}
+.load-step.active .step-dot{background:var(--accent);animation:pulse .8s ease-in-out infinite}
+.load-step.done .step-dot{background:var(--accent2)}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.7}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.history-bar{display:none;background:var(--card);border-radius:var(--r);padding:14px 18px;margin-bottom:18px;box-shadow:var(--shadow)}
+.history-bar h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);margin-bottom:8px}
+.history-list{display:flex;gap:8px;flex-wrap:wrap}
+.history-item{background:var(--bg);border:1px solid var(--border);padding:5px 12px;border-radius:100px;font-size:12px;cursor:pointer;transition:border-color .2s;color:var(--ink2)}
+.history-item:hover{border-color:var(--accent);color:var(--accent)}
+.history-item.active-hist{border-color:var(--accent);background:#edf7f1;color:var(--accent);font-weight:500}
+.results{display:none;margin-top:24px}
+.section-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);margin-bottom:12px}
+.patient-meta{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.meta-pill{background:var(--card);border:1px solid var(--border);padding:5px 14px;border-radius:100px;font-size:13px;color:var(--ink2)}
+.meta-pill span{color:var(--ink);font-weight:500}
+.summary-card{background:var(--accent);color:#fff;border-radius:var(--r);padding:26px 30px;margin-bottom:20px}
+.summary-card .section-label{color:rgba(255,255,255,.6)}
+.summary-card p{font-family:'DM Serif Display',serif;font-size:19px;font-weight:400;line-height:1.55;font-style:italic}
+.translate-notice{background:#edf7f1;border-radius:8px;padding:8px 14px;font-size:12px;color:var(--accent);margin-top:10px;display:none}
+.findings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-bottom:20px}
+.finding-card{background:var(--card);border-radius:12px;padding:16px 18px;border-left:4px solid var(--normal);box-shadow:var(--shadow)}
+.finding-card.warning{border-left-color:var(--warn)}.finding-card.critical{border-left-color:var(--danger)}
+.finding-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink2);margin-bottom:3px}
+.finding-value{font-size:19px;font-weight:600;margin-bottom:3px}
+.finding-card.warning .finding-value{color:var(--warn)}.finding-card.critical .finding-value{color:var(--danger)}.finding-card.normal .finding-value{color:var(--normal)}
+.finding-status{display:inline-flex;align-items:center;font-size:10px;font-weight:600;text-transform:uppercase;padding:2px 9px;border-radius:100px;margin-bottom:5px}
+.status-normal{background:#edf7f1;color:var(--normal)}.status-warning{background:#fef4e8;color:var(--warn)}.status-critical{background:#fdecea;color:var(--danger)}
+.ref-range{font-size:11px;color:var(--ink3);margin-bottom:5px}.ref-range span{color:var(--ink2);font-weight:500}
+.finding-explanation{font-size:12px;color:var(--ink2);line-height:1.5}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:580px){.two-col{grid-template-columns:1fr}}
+.list-card{background:var(--card);border-radius:var(--r);padding:20px 22px;box-shadow:var(--shadow)}
+.list-card ul{list-style:none;display:flex;flex-direction:column;gap:9px;margin-top:9px}
+.list-card li{display:flex;gap:10px;font-size:14px;line-height:1.5;color:var(--ink);align-items:flex-start}
+.list-card li::before{content:'';width:20px;height:20px;min-width:20px;border-radius:50%;background:#edf7f1;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%232d6a4f'%3E%3Cpath d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");background-size:12px;background-repeat:no-repeat;background-position:center;margin-top:2px}
+.flags-card li::before{background-color:#fef4e8;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23e07a28'%3E%3Cpath fill-rule='evenodd' d='M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z' clip-rule='evenodd'/%3E%3C/svg%3E")}
+.reassurance-card{background:#edf7f1;border-radius:var(--r);padding:22px 26px;margin-bottom:20px;display:flex;gap:14px;align-items:flex-start}
+.heart-icon{width:38px;height:38px;min-width:38px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff}
+.reassurance-card p{font-size:15px;line-height:1.65;color:#1b4332;font-style:italic}
+.action-row{display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.error-card{display:none;background:#fdecea;border-radius:var(--r);padding:22px 26px;margin-top:20px;color:var(--danger);font-size:14px;line-height:1.6}
+.disclaimer{font-size:11px;color:var(--ink3);text-align:center;margin-top:28px;line-height:1.6}
+@media print{header{background:#2d6a4f !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.lang-wrapper,.action-row,.history-bar{display:none !important}.summary-card{background:#2d6a4f !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo-icon">🩺</div>
+  <div class="header-titles">
+    <h1 id="ui-title">MediScan AI</h1>
+    <p id="ui-subtitle">Upload your medical report and understand it in plain language</p>
+  </div>
+  <div class="header-right">
+    <div class="lang-wrapper" id="lang-wrapper">
+      <button class="lang-trigger" id="lang-trigger" onclick="toggleDropdown()">
+        <span class="lang-globe">🌐</span>
+        <span id="lang-current">English</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="lang-dropdown" id="lang-dropdown">
+        <div class="lang-dropdown-header">
+          <span id="ui-chooselang">Choose language</span>
+          <span style="font-size:12px;color:var(--ink3)">22 languages</span>
+        </div>
+        <div class="lang-search">
+          <input type="text" id="lang-search-input" placeholder="Search language..." oninput="filterLangs(this.value)"/>
+        </div>
+        <div class="lang-list" id="lang-list"></div>
+      </div>
+    </div>
+    <span class="badge">Powered by Amazon Nova</span>
+  </div>
+</header>
+
+<main>
+  <div class="upload-area" id="upload-area">
+    <div class="upload-icon">📄</div>
+    <h2 id="ui-drop">Drop your medical report here</h2>
+    <p id="ui-dropsub">Blood tests, X-ray reports, prescriptions, lab results — any medical document</p>
+    <div class="file-types"><span class="file-type">PDF</span><span class="file-type">JPG</span><span class="file-type">PNG</span></div>
+    <div class="file-chosen" id="file-chosen"></div>
+    <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png,.webp"/>
+    <br/>
+    <button class="btn" id="ui-choosefile" onclick="document.getElementById('file-input').click()">Choose File</button>
+    <button class="btn btn-dark" id="btn-analyze" style="display:none;margin-left:8px" onclick="analyzeFile()"><span id="ui-analyze">Analyze Report →</span></button>
+  </div>
+
+  <div class="loading" id="loading">
+    <h3 id="ui-analyzing">Analyzing your report…</h3>
+    <div class="load-steps">
+      <div class="load-step" id="ls1"><div class="step-dot"></div><span id="ui-ls1">Reading document with Amazon Nova</span></div>
+      <div class="load-step" id="ls2"><div class="step-dot"></div><span id="ui-ls2">Extracting all medical findings</span></div>
+      <div class="load-step" id="ls3"><div class="step-dot"></div><span id="ui-ls3">Classifying each result</span></div>
+      <div class="load-step" id="ls4"><div class="step-dot"></div><span id="ui-ls4">Generating plain-language explanations</span></div>
+      <div class="load-step" id="ls5"><div class="step-dot"></div><span id="ui-ls5">Preparing your report</span></div>
+    </div>
+  </div>
+
+  <div class="error-card" id="error-card"></div>
+
+  <div class="history-bar" id="history-bar">
+    <h4 id="ui-prevreports">Previous reports</h4>
+    <div class="history-list" id="history-list"></div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="patient-meta" id="patient-meta"></div>
+    <div class="summary-card">
+      <div class="section-label" id="ui-summary-label">Summary</div>
+      <p id="r-summary"></p>
+      <div class="translate-notice" id="translate-notice">Translating… please wait</div>
+    </div>
+    <div class="section-label" id="ui-findings-label">Key findings</div>
+    <div class="findings-grid" id="r-findings"></div>
+    <div class="two-col">
+      <div class="list-card flags-card">
+        <div class="section-label" id="ui-watch-label">Things to watch</div>
+        <ul id="r-flags"></ul>
+      </div>
+      <div class="list-card">
+        <div class="section-label" id="ui-steps-label">Recommended next steps</div>
+        <ul id="r-steps"></ul>
+      </div>
+    </div>
+    <div class="reassurance-card">
+      <div class="heart-icon">♥</div>
+      <p id="r-reassurance"></p>
+    </div>
+    <div class="action-row">
+      <button class="btn" onclick="downloadPDF()"><span id="ui-download">⬇ Download PDF Report</span></button>
+      <button class="btn btn-outline" onclick="resetApp()"><span id="ui-another">↩ Analyze another report</span></button>
+    </div>
+    <p class="disclaimer" id="ui-disclaimer">MediScan AI is for informational purposes only. Always consult a qualified healthcare professional for medical advice, diagnosis, or treatment.</p>
+  </div>
+</main>
+
+<script>
+const LANGUAGES = [
+  {code:'en',native:'English',name:'English'},
+  {code:'hi',native:'हिंदी',name:'Hindi'},
+  {code:'bn',native:'বাংলা',name:'Bengali'},
+  {code:'te',native:'తెలుగు',name:'Telugu'},
+  {code:'mr',native:'मराठी',name:'Marathi'},
+  {code:'ta',native:'தமிழ்',name:'Tamil'},
+  {code:'gu',native:'ગુજરાતી',name:'Gujarati'},
+  {code:'kn',native:'ಕನ್ನಡ',name:'Kannada'},
+  {code:'ml',native:'മലയാളം',name:'Malayalam'},
+  {code:'pa',native:'ਪੰਜਾਬੀ',name:'Punjabi'},
+  {code:'or',native:'ଓଡ଼ିଆ',name:'Odia'},
+  {code:'as',native:'অসমীয়া',name:'Assamese'},
+  {code:'ur',native:'اردو',name:'Urdu'},
+  {code:'mai',native:'मैथिली',name:'Maithili'},
+  {code:'ne',native:'नेपाली',name:'Nepali'},
+  {code:'kok',native:'कोंकणी',name:'Konkani'},
+  {code:'doi',native:'डोगरी',name:'Dogri'},
+  {code:'mni',native:'মণিপুরি',name:'Manipuri'},
+  {code:'sat',native:'ᱥᱟᱱᱛᱟᱲᱤ',name:'Santali'},
+  {code:'ks',native:'کٲشُر',name:'Kashmiri'},
+  {code:'sd',native:'سنڌي',name:'Sindhi'},
+  {code:'bo',native:'बड़ो',name:'Bodo'}
+];
+
+// UI strings for each language
+const UI = {
+  en:{title:'MediScan AI',subtitle:'Upload your medical report and understand it in plain language',chooselang:'Choose language',drop:'Drop your medical report here',dropsub:'Blood tests, X-ray reports, prescriptions, lab results — any medical document',choosefile:'Choose File',analyze:'Analyze Report →',analyzing:'Analyzing your report…',ls1:'Reading document with Amazon Nova',ls2:'Extracting all medical findings',ls3:'Classifying each result',ls4:'Generating plain-language explanations',ls5:'Preparing your report',prevreports:'Previous reports',summary:'Summary',findings:'Key findings',watch:'Things to watch',steps:'Recommended next steps',download:'⬇ Download PDF Report',another:'↩ Analyze another report',disclaimer:'MediScan AI is for informational purposes only. Always consult a qualified healthcare professional for medical advice, diagnosis, or treatment.',patient:'Patient',date:'Date',language:'Language',translating:'Translating… please wait',normal:'normal',warning:'warning',critical:'critical',refrange:'Normal range'},
+  hi:{title:'मेडिस्कैन AI',subtitle:'अपनी मेडिकल रिपोर्ट अपलोड करें और सरल भाषा में समझें',chooselang:'भाषा चुनें',drop:'अपनी मेडिकल रिपोर्ट यहाँ डालें',dropsub:'ब्लड टेस्ट, एक्स-रे रिपोर्ट, प्रिस्क्रिप्शन, लैब रिजल्ट — कोई भी मेडिकल दस्तावेज़',choosefile:'फ़ाइल चुनें',analyze:'रिपोर्ट विश्लेषण करें →',analyzing:'आपकी रिपोर्ट का विश्लेषण हो रहा है…',ls1:'Amazon Nova से दस्तावेज़ पढ़ा जा रहा है',ls2:'मेडिकल निष्कर्ष निकाले जा रहे हैं',ls3:'प्रत्येक परिणाम वर्गीकृत किया जा रहा है',ls4:'सरल भाषा में स्पष्टीकरण तैयार हो रहा है',ls5:'आपकी रिपोर्ट तैयार की जा रही है',prevreports:'पिछली रिपोर्टें',summary:'सारांश',findings:'मुख्य निष्कर्ष',watch:'ध्यान देने योग्य बातें',steps:'अनुशंसित अगले कदम',download:'⬇ PDF रिपोर्ट डाउनलोड करें',another:'↩ दूसरी रिपोर्ट विश्लेषण करें',disclaimer:'MediScan AI केवल जानकारी के लिए है। चिकित्सा सलाह के लिए हमेशा योग्य स्वास्थ्य विशेषज्ञ से परामर्श लें।',patient:'मरीज़',date:'तारीख',language:'भाषा',translating:'अनुवाद हो रहा है… कृपया प्रतीक्षा करें',normal:'सामान्य',warning:'सावधानी',critical:'गंभीर',refrange:'सामान्य सीमा'},
+  ta:{title:'மெடிஸ்கேன் AI',subtitle:'உங்கள் மருத்துவ அறிக்கையை பதிவேற்றி எளிய மொழியில் புரிந்துகொள்ளுங்கள்',chooselang:'மொழியைத் தேர்வுசெய்',drop:'உங்கள் மருத்துவ அறிக்கையை இங்கே போடுங்கள்',dropsub:'இரத்தப் பரிசோதனை, எக்ஸ்-ரே, மருந்துச்சீட்டு, ஆய்வக முடிவுகள் — எந்த மருத்துவ ஆவணமும்',choosefile:'கோப்பைத் தேர்ந்தெடு',analyze:'அறிக்கையை பகுப்பாய்வு செய் →',analyzing:'உங்கள் அறிக்கை பகுப்பாய்வு செய்யப்படுகிறது…',ls1:'Amazon Nova மூலம் ஆவணம் படிக்கப்படுகிறது',ls2:'மருத்துவ கண்டுபிடிப்புகள் பிரிக்கப்படுகின்றன',ls3:'ஒவ்வொரு முடிவும் வகைப்படுத்தப்படுகிறது',ls4:'எளிய மொழி விளக்கங்கள் உருவாக்கப்படுகின்றன',ls5:'உங்கள் அறிக்கை தயாரிக்கப்படுகிறது',prevreports:'முந்தைய அறிக்கைகள்',summary:'சுருக்கம்',findings:'முக்கிய கண்டுபிடிப்புகள்',watch:'கவனிக்க வேண்டியவை',steps:'பரிந்துரைக்கப்பட்ட அடுத்த படிகள்',download:'⬇ PDF அறிக்கை பதிவிறக்கம்',another:'↩ மற்றொரு அறிக்கையை பகுப்பாய்வு செய்',disclaimer:'MediScan AI தகவல் நோக்கத்திற்கு மட்டுமே. மருத்துவ ஆலோசனைக்கு எப்போதும் தகுதிவாய்ந்த சுகாதார நிபுணரை அணுகவும்.',patient:'நோயாளி',date:'தேதி',language:'மொழி',translating:'மொழிபெயர்க்கப்படுகிறது… தயவுசெய்து காத்திருங்கள்',normal:'சாதாரணம்',warning:'எச்சரிக்கை',critical:'கடுமையானது',refrange:'சாதாரண வரம்பு'},
+  bn:{title:'মেডিস্ক্যান AI',subtitle:'আপনার চিকিৎসা রিপোর্ট আপলোড করুন এবং সহজ ভাষায় বুঝুন',chooselang:'ভাষা বেছে নিন',drop:'আপনার চিকিৎসা রিপোর্ট এখানে দিন',dropsub:'রক্ত পরীক্ষা, এক্স-রে রিপোর্ট, প্রেসক্রিপশন, ল্যাব ফলাফল',choosefile:'ফাইল বেছে নিন',analyze:'রিপোর্ট বিশ্লেষণ করুন →',analyzing:'আপনার রিপোর্ট বিশ্লেষণ হচ্ছে…',ls1:'Amazon Nova দিয়ে নথি পড়া হচ্ছে',ls2:'চিকিৎসা তথ্য বের করা হচ্ছে',ls3:'প্রতিটি ফলাফল শ্রেণীবদ্ধ হচ্ছে',ls4:'সহজ ভাষায় ব্যাখ্যা তৈরি হচ্ছে',ls5:'আপনার রিপোর্ট প্রস্তুত হচ্ছে',prevreports:'পূর্ববর্তী রিপোর্ট',summary:'সারসংক্ষেপ',findings:'মূল তথ্য',watch:'সতর্কতার বিষয়',steps:'পরবর্তী পদক্ষেপ',download:'⬇ PDF রিপোর্ট ডাউনলোড',another:'↩ অন্য রিপোর্ট বিশ্লেষণ করুন',disclaimer:'MediScan AI শুধুমাত্র তথ্যের জন্য। সর্বদা যোগ্য চিকিৎসকের পরামর্শ নিন।',patient:'রোগী',date:'তারিখ',language:'ভাষা',translating:'অনুবাদ হচ্ছে… অনুগ্রহ করে অপেক্ষা করুন',normal:'স্বাভাবিক',warning:'সতর্কতা',critical:'গুরুতর',refrange:'স্বাভাবিক সীমা'},
+  te:{title:'మెడిస్కాన్ AI',subtitle:'మీ వైద్య నివేదికను అప్‌లోడ్ చేయండి మరియు సరళమైన భాషలో అర్థం చేసుకోండి',chooselang:'భాష ఎంచుకోండి',drop:'మీ వైద్య నివేదికను ఇక్కడ వేయండి',dropsub:'రక్త పరీక్షలు, ఎక్స్-రే నివేదికలు, ప్రిస్క్రిప్షన్లు, ల్యాబ్ ఫలితాలు',choosefile:'ఫైల్ ఎంచుకోండి',analyze:'నివేదికను విశ్లేషించండి →',analyzing:'మీ నివేదిక విశ్లేషించబడుతోంది…',ls1:'Amazon Nova తో పత్రం చదవబడుతోంది',ls2:'వైద్య నిర్ధారణలు సేకరించబడుతున్నాయి',ls3:'ప్రతి ఫలితం వర్గీకరించబడుతోంది',ls4:'సరళ భాషలో వివరణలు రూపొందించబడుతున్నాయి',ls5:'మీ నివేదిక సిద్ధమవుతోంది',prevreports:'మునుపటి నివేదికలు',summary:'సారాంశం',findings:'ముఖ్యమైన ఫలితాలు',watch:'గమనించవలసినవి',steps:'సిఫార్సు చేయబడిన తదుపరి దశలు',download:'⬇ PDF నివేదిక డౌన్‌లోడ్',another:'↩ మరొక నివేదిక విశ్లేషించండి',disclaimer:'MediScan AI కేవలం సమాచార ప్రయోజనాల కోసం మాత్రమే. వైద్య సలహా కోసం అర్హత గల నిపుణుడిని సంప్రదించండి.',patient:'రోగి',date:'తేదీ',language:'భాష',translating:'అనువదిస్తోంది… దయచేసి వేచి ఉండండి',normal:'సాధారణం',warning:'హెచ్చరిక',critical:'తీవ్రమైన',refrange:'సాధారణ పరిధి'},
+  mr:{title:'मेडिस्कॅन AI',subtitle:'तुमचा वैद्यकीय अहवाल अपलोड करा आणि सोप्या भाषेत समजून घ्या',chooselang:'भाषा निवडा',drop:'तुमचा वैद्यकीय अहवाल येथे टाका',dropsub:'रक्त चाचण्या, एक्स-रे अहवाल, प्रिस्क्रिप्शन, लॅब निकाल',choosefile:'फाइल निवडा',analyze:'अहवाल विश्लेषण करा →',analyzing:'तुमच्या अहवालाचे विश्लेषण होत आहे…',ls1:'Amazon Nova सह दस्तऐवज वाचला जात आहे',ls2:'वैद्यकीय निष्कर्ष काढले जात आहेत',ls3:'प्रत्येक निकाल वर्गीकृत केला जात आहे',ls4:'सोप्या भाषेत स्पष्टीकरण तयार होत आहे',ls5:'तुमचा अहवाल तयार होत आहे',prevreports:'मागील अहवाल',summary:'सारांश',findings:'मुख्य निष्कर्ष',watch:'लक्ष द्यावयाच्या गोष्टी',steps:'शिफारस केलेल्या पुढील पायऱ्या',download:'⬇ PDF अहवाल डाउनलोड करा',another:'↩ दुसरा अहवाल विश्लेषण करा',disclaimer:'MediScan AI केवळ माहितीसाठी आहे. वैद्यकीय सल्ल्यासाठी नेहमी तज्ञांचा सल्ला घ्या.',patient:'रुग्ण',date:'तारीख',language:'भाषा',translating:'भाषांतर होत आहे… कृपया प्रतीक्षा करा',normal:'सामान्य',warning:'इशारा',critical:'गंभीर',refrange:'सामान्य श्रेणी'},
+  gu:{title:'મેડિસ્કૅન AI',subtitle:'તમારો તબીબી અહેવાલ અપલોડ કરો અને સરળ ભાષામાં સમજો',chooselang:'ભાષા પસંદ કરો',drop:'તમારો તબીબી અહેવાલ અહીં મૂકો',dropsub:'રક્ત પરીક્ષણ, એક્સ-રે, પ્રિસ્ક્રિપ્શન, લેબ પરિણામો',choosefile:'ફાઇલ પસંદ કરો',analyze:'અહેવાલ વિશ્લેષણ કરો →',analyzing:'તમારા અહેવાલનું વિશ્લેષણ થઈ રહ્યું છે…',ls1:'Amazon Nova સાથે દસ્તાવેજ વાંચવામાં આવી રહ્યો છે',ls2:'તબીબી તારણો કાઢવામાં આવી રહ્યા છે',ls3:'દરેક પરિણામ વર્ગીકૃત કરવામાં આવી રહ્યું છે',ls4:'સરળ ભાષામાં સ્પષ્ટીકરણ તૈયાર થઈ રહ્યું છે',ls5:'તમારો અહેવાલ તૈયાર કરવામાં આવી રહ્યો છે',prevreports:'અગાઉના અહેવાલ',summary:'સારાંશ',findings:'મુખ્ય તારણો',watch:'ધ્યાન રાખવા જેવી બાબતો',steps:'ભલામણ કરેલ આગળના પગલાં',download:'⬇ PDF અહેવાલ ડાઉનલોડ કરો',another:'↩ બીજો અહેવાલ વિશ્લેષણ કરો',disclaimer:'MediScan AI માત્ર માહિતી માટે છે. તબીબી સલાહ માટે હંમેશા નિષ્ણાતની સલાહ લો.',patient:'દર્દી',date:'તારીખ',language:'ભાષા',translating:'અનુવાદ થઈ રહ્યો છે… કૃપા કરીને રાહ જુઓ',normal:'સામાન્ય',warning:'ચેતવણી',critical:'ગંભીર',refrange:'સામાન્ય શ્રેણી'},
+  kn:{title:'ಮೆಡಿಸ್ಕ್ಯಾನ್ AI',subtitle:'ನಿಮ್ಮ ವೈದ್ಯಕೀಯ ವರದಿಯನ್ನು ಅಪ್ಲೋಡ್ ಮಾಡಿ ಮತ್ತು ಸರಳ ಭಾಷೆಯಲ್ಲಿ ಅರ್ಥ ಮಾಡಿಕೊಳ್ಳಿ',chooselang:'ಭಾಷೆ ಆಯ್ಕೆ ಮಾಡಿ',drop:'ನಿಮ್ಮ ವೈದ್ಯಕೀಯ ವರದಿಯನ್ನು ಇಲ್ಲಿ ಹಾಕಿ',dropsub:'ರಕ್ತ ಪರೀಕ್ಷೆ, ಎಕ್ಸ್-ರೇ, ಪ್ರಿಸ್ಕ್ರಿಪ್ಷನ್, ಲ್ಯಾಬ್ ಫಲಿತಾಂಶಗಳು',choosefile:'ಫೈಲ್ ಆಯ್ಕೆ ಮಾಡಿ',analyze:'ವರದಿ ವಿಶ್ಲೇಷಿಸಿ →',analyzing:'ನಿಮ್ಮ ವರದಿ ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ…',ls1:'Amazon Nova ನೊಂದಿಗೆ ದಾಖಲೆ ಓದಲಾಗುತ್ತಿದೆ',ls2:'ವೈದ್ಯಕೀಯ ಸಂಶೋಧನೆಗಳನ್ನು ಹೊರತೆಗೆಯಲಾಗುತ್ತಿದೆ',ls3:'ಪ್ರತಿ ಫಲಿತಾಂಶ ವರ್ಗೀಕರಿಸಲಾಗುತ್ತಿದೆ',ls4:'ಸರಳ ಭಾಷೆಯಲ್ಲಿ ವಿವರಣೆ ರಚಿಸಲಾಗುತ್ತಿದೆ',ls5:'ನಿಮ್ಮ ವರದಿ ಸಿದ್ಧಪಡಿಸಲಾಗುತ್ತಿದೆ',prevreports:'ಹಿಂದಿನ ವರದಿಗಳು',summary:'ಸಾರಾಂಶ',findings:'ಪ್ರಮುಖ ಸಂಶೋಧನೆಗಳು',watch:'ಗಮನಿಸಬೇಕಾದ ವಿಷಯಗಳು',steps:'ಶಿಫಾರಸು ಮಾಡಿದ ಮುಂದಿನ ಹಂತಗಳು',download:'⬇ PDF ವರದಿ ಡೌನ್ಲೋಡ್',another:'↩ ಮತ್ತೊಂದು ವರದಿ ವಿಶ್ಲೇಷಿಸಿ',disclaimer:'MediScan AI ಮಾಹಿತಿ ಉದ್ದೇಶಕ್ಕೆ ಮಾತ್ರ. ವೈದ್ಯಕೀಯ ಸಲಹೆಗಾಗಿ ತಜ್ಞರನ್ನು ಸಂಪರ್ಕಿಸಿ.',patient:'ರೋಗಿ',date:'ದಿನಾಂಕ',language:'ಭಾಷೆ',translating:'ಅನುವಾದ ಆಗುತ್ತಿದೆ… ದಯವಿಟ್ಟು ನಿರೀಕ್ಷಿಸಿ',normal:'ಸಾಮಾನ್ಯ',warning:'ಎಚ್ಚರಿಕೆ',critical:'ತೀವ್ರ',refrange:'ಸಾಮಾನ್ಯ ವ್ಯಾಪ್ತಿ'},
+  ml:{title:'മെഡിസ്കാൻ AI',subtitle:'നിങ്ങളുടെ മെഡിക്കൽ റിപ്പോർട്ട് അപ്‌ലോഡ് ചെയ്ത് ലളിതമായ ഭാഷയിൽ മനസ്സിലാക്കൂ',chooselang:'ഭാഷ തിരഞ്ഞെടുക്കൂ',drop:'നിങ്ങളുടെ മെഡിക്കൽ റിപ്പോർട്ട് ഇവിടെ ഇടൂ',dropsub:'രക്ത പരിശോധന, എക്സ്-റേ, പ്രിസ്ക്രിപ്ഷൻ, ലാബ് ഫലങ്ങൾ',choosefile:'ഫയൽ തിരഞ്ഞെടുക്കൂ',analyze:'റിപ്പോർട്ട് വിശകലനം ചെയ്യൂ →',analyzing:'നിങ്ങളുടെ റിപ്പോർട്ട് വിശകലനം ചെയ്യുന്നു…',ls1:'Amazon Nova ഉപയോഗിച്ച് രേഖ വായിക്കുന്നു',ls2:'മെഡിക്കൽ കണ്ടെത്തലുകൾ പുറത്തെടുക്കുന്നു',ls3:'ഓരോ ഫലവും തരംതിരിക്കുന്നു',ls4:'ലളിതമായ ഭാഷയിൽ വിശദീകരണം തയ്യാറാക്കുന്നു',ls5:'നിങ്ങളുടെ റിപ്പോർട്ട് തയ്യാറാക്കുന്നു',prevreports:'മുൻ റിപ്പോർട്ടുകൾ',summary:'സംഗ്രഹം',findings:'പ്രധാന കണ്ടെത്തലുകൾ',watch:'ശ്രദ്ധിക്കേണ്ട കാര്യങ്ങൾ',steps:'ശുപാർശ ചെയ്ത അടുത്ത ഘട്ടങ്ങൾ',download:'⬇ PDF റിപ്പോർട്ട് ഡൗൺലോഡ്',another:'↩ മറ്റൊരു റിപ്പോർട്ട് വിശകലനം ചെയ്യൂ',disclaimer:'MediScan AI വിവര ആവശ്യങ്ങൾക്ക് മാത്രം. വൈദ്യ ഉപദേശത്തിന് വിദഗ്ധനെ സമീപിക്കൂ.',patient:'രോഗി',date:'തീയതി',language:'ഭാഷ',translating:'വിവർത്തനം ചെയ്യുന്നു… ദയവായി കാത്തിരിക്കൂ',normal:'സാധാരണ',warning:'മുന്നറിയിപ്പ്',critical:'ഗുരുതരം',refrange:'സാധാരണ പരിധി'}
+};
+
+// For other languages not fully translated, fall back to English
+function getUI(lang) { return UI[lang] || UI['en']; }
+
+let currentLang = 'en';
+let currentData = null;
+let translationCache = {'en': null};
+let selectedFile = null;
+let loadInterval = null;
+let reportHistory = [];
+try { reportHistory = JSON.parse(localStorage.getItem('mediscan_history') || '[]'); } catch(e){}
+
+// Build language list
+function buildLangList(filter) {
+  const list = document.getElementById('lang-list');
+  list.innerHTML = '';
+  LANGUAGES.filter(l => !filter || l.name.toLowerCase().includes(filter.toLowerCase()) || l.native.includes(filter)).forEach(lang => {
+    const item = document.createElement('div');
+    item.className = 'lang-item' + (lang.code === currentLang ? ' active' : '');
+    item.innerHTML = `
+      <div class="lang-item-left">
+        <span class="lang-native">${lang.native}</span>
+        <span class="lang-english">${lang.name}</span>
+      </div>
+      <svg class="lang-check" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>`;
+    item.onclick = () => selectLanguage(lang.code, lang.name);
+    list.appendChild(item);
+  });
+}
+
+function toggleDropdown() {
+  const dd = document.getElementById('lang-dropdown');
+  const trigger = document.getElementById('lang-trigger');
+  const isOpen = dd.classList.contains('open');
+  dd.classList.toggle('open');
+  trigger.classList.toggle('open');
+  if (!isOpen) {
+    document.getElementById('lang-search-input').value = '';
+    buildLangList('');
+    setTimeout(() => document.getElementById('lang-search-input').focus(), 100);
+  }
+}
+
+function filterLangs(val) { buildLangList(val); }
+
+document.addEventListener('click', e => {
+  if (!document.getElementById('lang-wrapper').contains(e.target)) {
+    document.getElementById('lang-dropdown').classList.remove('open');
+    document.getElementById('lang-trigger').classList.remove('open');
+  }
+});
+
+function applyUI(lang) {
+  const u = getUI(lang);
+  document.getElementById('ui-title').textContent = u.title;
+  document.getElementById('ui-subtitle').textContent = u.subtitle;
+  document.getElementById('ui-chooselang').textContent = u.chooselang;
+  document.getElementById('ui-drop').textContent = u.drop;
+  document.getElementById('ui-dropsub').textContent = u.dropsub;
+  document.getElementById('ui-choosefile').textContent = u.choosefile;
+  document.getElementById('ui-analyze').textContent = u.analyze;
+  document.getElementById('ui-analyzing').textContent = u.analyzing;
+  document.getElementById('ui-ls1').textContent = u.ls1;
+  document.getElementById('ui-ls2').textContent = u.ls2;
+  document.getElementById('ui-ls3').textContent = u.ls3;
+  document.getElementById('ui-ls4').textContent = u.ls4;
+  document.getElementById('ui-ls5').textContent = u.ls5;
+  document.getElementById('ui-prevreports').textContent = u.prevreports;
+  document.getElementById('ui-summary-label').textContent = u.summary;
+  document.getElementById('ui-findings-label').textContent = u.findings;
+  document.getElementById('ui-watch-label').textContent = u.watch;
+  document.getElementById('ui-steps-label').textContent = u.steps;
+  document.getElementById('ui-download').textContent = u.download;
+  document.getElementById('ui-another').textContent = u.another;
+  document.getElementById('ui-disclaimer').textContent = u.disclaimer;
+  document.getElementById('translate-notice').textContent = u.translating;
+  document.getElementById('lang-search-input').placeholder = u.chooselang + '...';
+}
+
+async function selectLanguage(code, name) {
+  document.getElementById('lang-dropdown').classList.remove('open');
+  document.getElementById('lang-trigger').classList.remove('open');
+  const lang = LANGUAGES.find(l => l.code === code);
+  document.getElementById('lang-current').textContent = lang.native;
+  currentLang = code;
+  buildLangList('');
+  applyUI(code);
+  if (!currentData) return;
+  if (code === 'en') { renderResults(currentData, null); return; }
+  if (translationCache[code]) { renderResults(currentData, translationCache[code]); return; }
+  document.getElementById('translate-notice').style.display = 'block';
+  try {
+    const r = await fetch('/translate', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({language:name,data:currentData})});
+    const t = await r.json();
+    if (t.error) throw new Error(t.error);
+    translationCache[code] = t;
+    renderResults(currentData, t);
+  } catch(e) {
+    alert('Translation failed: ' + e.message);
+  } finally {
+    document.getElementById('translate-notice').style.display = 'none';
+  }
+}
+
+const fileInput = document.getElementById('file-input');
+const uploadArea = document.getElementById('upload-area');
+fileInput.addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  selectedFile = f;
+  document.getElementById('file-chosen').textContent = '✓ ' + f.name + ' (' + (f.size/1024).toFixed(1) + ' KB)';
+  document.getElementById('file-chosen').style.display = 'block';
+  document.getElementById('btn-analyze').style.display = 'inline-block';
+});
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault(); uploadArea.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0]; if (!f) return;
+  selectedFile = f;
+  document.getElementById('file-chosen').textContent = '✓ ' + f.name;
+  document.getElementById('file-chosen').style.display = 'block';
+  document.getElementById('btn-analyze').style.display = 'inline-block';
+});
+
+function startLoadAnimation() {
+  const steps = ['ls1','ls2','ls3','ls4','ls5']; let i = 0;
+  steps.forEach(s => { document.getElementById(s).className = 'load-step'; });
+  document.getElementById(steps[0]).classList.add('active');
+  loadInterval = setInterval(() => {
+    if (i < steps.length-1) {
+      document.getElementById(steps[i]).classList.remove('active');
+      document.getElementById(steps[i]).classList.add('done');
+      i++; document.getElementById(steps[i]).classList.add('active');
+    }
+  }, 2000);
+}
+function stopLoadAnimation() {
+  if (loadInterval) clearInterval(loadInterval);
+  ['ls1','ls2','ls3','ls4','ls5'].forEach(s => { document.getElementById(s).classList.remove('active'); document.getElementById(s).classList.add('done'); });
+}
+
+async function analyzeFile() {
+  if (!selectedFile) return;
+  translationCache = {'en': null}; currentLang = 'en';
+  document.getElementById('lang-current').textContent = 'English';
+  applyUI('en');
+  document.getElementById('upload-area').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('error-card').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  startLoadAnimation();
+  try {
+    const fd = new FormData(); fd.append('file', selectedFile);
+    const r = await fetch('/analyze', {method:'POST', body:fd});
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    stopLoadAnimation(); currentData = d;
+    saveToHistory(d, selectedFile.name);
+    renderResults(d, null);
+  } catch(er) {
+    stopLoadAnimation();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('upload-area').style.display = 'block';
+    const ec = document.getElementById('error-card');
+    ec.style.display = 'block'; ec.textContent = '⚠ Error: ' + er.message;
+  }
+}
+
+function renderResults(data, translation) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  const u = getUI(currentLang);
+  const meta = document.getElementById('patient-meta');
+  meta.innerHTML = '';
+  if (data.patient_name) meta.innerHTML += `<div class="meta-pill">${u.patient}: <span>${data.patient_name}</span></div>`;
+  if (data.report_date) meta.innerHTML += `<div class="meta-pill">${u.date}: <span>${data.report_date}</span></div>`;
+  document.getElementById('r-summary').textContent = translation ? translation.summary : data.summary || '';
+  const fe = document.getElementById('r-findings'); fe.innerHTML = '';
+  (data.key_findings || []).forEach((f,i) => {
+    const st = (f.status || 'normal').toLowerCase();
+    const ex = (translation && translation.findings_explanations && translation.findings_explanations[i]) ? translation.findings_explanations[i] : f.explanation || '';
+    const rh = f.reference_range ? `<div class="ref-range">${u.refrange}: <span>${f.reference_range}</span></div>` : '';
+    const statusLabel = u[st] || st;
+    fe.innerHTML += `<div class="finding-card ${st}"><div class="finding-label">${f.label||''}</div><div class="finding-value">${f.value||''}</div><span class="finding-status status-${st}">${statusLabel}</span>${rh}<div class="finding-explanation">${ex}</div></div>`;
+  });
+  const fl = document.getElementById('r-flags'); fl.innerHTML = '';
+  const flags = data.risk_flags || [];
+  if (!flags.length) fl.innerHTML = '<li>—</li>';
+  else flags.forEach(f => { fl.innerHTML += `<li>${f}</li>`; });
+  const st = document.getElementById('r-steps'); st.innerHTML = '';
+  (data.next_steps || []).forEach(s => { st.innerHTML += `<li>${s}</li>`; });
+  document.getElementById('r-reassurance').textContent = translation ? translation.reassurance : data.reassurance || '';
+  renderHistoryBar();
+}
+
+function saveToHistory(data, filename) {
+  const e = {id:Date.now(),filename,date:new Date().toLocaleDateString('en-IN'),patient:data.patient_name||'Unknown',data};
+  reportHistory.unshift(e);
+  if (reportHistory.length > 5) reportHistory = reportHistory.slice(0,5);
+  try { localStorage.setItem('mediscan_history', JSON.stringify(reportHistory)); } catch(e){}
+}
+function renderHistoryBar() {
+  if (reportHistory.length < 2) return;
+  document.getElementById('history-bar').style.display = 'block';
+  const list = document.getElementById('history-list'); list.innerHTML = '';
+  reportHistory.forEach((h,i) => {
+    const d = document.createElement('div');
+    d.className = 'history-item'+(i===0?' active-hist':'');
+    d.textContent = h.date+' — '+h.filename.substring(0,22);
+    d.onclick = () => { currentData=h.data; translationCache={'en':null}; currentLang='en'; document.getElementById('lang-current').textContent='English'; applyUI('en'); document.querySelectorAll('.history-item').forEach(el=>el.classList.remove('active-hist')); d.classList.add('active-hist'); renderResults(h.data,null); };
+    list.appendChild(d);
+  });
+}
+function downloadPDF(){window.print();}
+function resetApp(){
+  selectedFile=null; fileInput.value='';
+  document.getElementById('file-chosen').style.display='none';
+  document.getElementById('btn-analyze').style.display='none';
+  document.getElementById('results').style.display='none';
+  document.getElementById('error-card').style.display='none';
+  document.getElementById('upload-area').style.display='block';
+  document.getElementById('r-findings').innerHTML='';
+  document.getElementById('patient-meta').innerHTML='';
+  renderHistoryBar();
+}
+buildLangList('');
+renderHistoryBar();
+</script>
+</body>
+</html>
