@@ -10,12 +10,3 @@
     { "src": "/(.*)", "dest": "index.html" }
   ]
 }
-```
-
-**Step 4 — Add AWS credentials in Vercel**
-
-Your app needs AWS creds at runtime. In your Vercel project dashboard go to **Settings → Environment Variables** and add:
-```
-AWS_ACCESS_KEY_ID        = your_key
-AWS_SECRET_ACCESS_KEY    = your_secret
-AWS_DEFAULT_REGION       = us-east-1
